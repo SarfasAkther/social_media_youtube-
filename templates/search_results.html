@@ -1,0 +1,23 @@
+{% extends "index.html" %}
+{% block sidebar %}<hr>{% endblock sidebar %}
+
+{% block content %}
+<h2>Search results for "{{ query }}"</h2>
+
+{% if results %}
+<div class="video-list">
+    {% for video in results %}
+    <div class="video-card">
+        <a href="{% url 'play' video.video_id %}">
+            <img src="{{ video.video_thumbnail.url }}" alt="{{ video.video_title }}">
+            <h3>{{ video.video_title }}</h3>
+            <p>Channel: {{ video.user.channel.channel_name }}</p>
+            <p>{{ video.video_category }} | Views: {{ video.video_views }}</p>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No videos found.</p>
+{% endif %}
+{% endblock %}

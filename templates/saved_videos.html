@@ -1,0 +1,31 @@
+{% extends "index.html" %}
+
+{% load humanize %}
+{% block sidebar %}<hr>{% endblock sidebar %}
+
+{% block content %}
+{% load static %}
+    <div class="container">
+        <div class="list-container">
+            {% for watch in saved_videos %}
+                <div class="vid-list">
+                    <a href="{% url 'play' watch.video_id %}">
+                        <img src="{{ watch.video_thumbnail.url }}" class="thumbnail">
+                    </a>
+                    <div class="flex-div">
+                        <img src="{{ watch.user.channel.channel_picture.url|default:'https://via.placeholder.com/40' }}" class="channel-icon">
+                        <div class="vid-info">
+                            <a href="{% url 'play' watch.video_id %}">{{ watch.video_title }}</a>
+                            <p>{{ watch.user.channel.channel_name }}</p>
+                            <p>{{ watch.video_views|intcomma }} Views &bull; {{ watch.video_timestamp|timesince }} ago</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>You have no saved videos.</p>
+            {% endfor %}
+
+        </div>
+    </div>
+
+{% endblock %}

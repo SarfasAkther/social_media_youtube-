@@ -1,0 +1,173 @@
+
+{% load static %}
+
+
+<div class="channel-container">
+    <div class="channel-form-wrapper">
+        <h3>Edit Your Channel</h3>
+
+        <form action="{% url 'edit_channel' %}" method="POST" enctype="multipart/form-data" class="user_upload_form">
+            {% csrf_token %}
+            
+            <div>
+                <label for="id_channel_name">Channel Name</label>
+                {{ form.channel_name }}
+            </div>
+
+            <div>
+                <label for="id_channel_description">Description</label>
+                {{ form.channel_description }}
+            </div>
+
+            <div>
+                <label for="id_channel_picture">Channel Picture</label>
+                {% if form.instance.channel_picture %}
+                    <img src="{{ form.instance.channel_picture.url }}" alt="Channel Picture" width="100" height="100" style="border-radius: 8px; margin-bottom: 10px;">
+                {% endif %}
+                {{ form.channel_picture }}
+            </div>
+
+            <div class="submit-button">
+                <button type="submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* 🌑 Background & overall look */
+    body {
+        background-color: #0f0f0f;
+        font-family: 'Poppins', sans-serif;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 📦 Centered form container */
+    .channel-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 90vh;
+        padding: 20px;
+    }
+
+    /* 🧱 Form card style */
+    .channel-form-wrapper {
+        background-color: #1e1e1e;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+        width: 100%;
+        max-width: 520px;
+        padding: 35px 40px;
+        position: relative;
+    }
+
+    /* 🏷️ Title */
+    .channel-form-wrapper h3 {
+        text-align: center;
+        font-size: 22px;
+        margin-bottom: 25px;
+        font-weight: 600;
+        color: #3ea6ff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* 🧾 Form spacing */
+    .user_upload_form div {
+        margin-bottom: 18px;
+    }
+
+    /* 🏷️ Labels */
+    .user_upload_form label {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 6px;
+        color: #ccc;
+    }
+
+    /* ✏️ Inputs and textarea */
+    .user_upload_form input,
+    .user_upload_form textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: solid 1px #3ea6ff;
+        border-radius: 8px;
+        background-color: #111;
+        color: #fff;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .user_upload_form input:focus,
+    .user_upload_form textarea:focus {
+        border-color: #1c8de0;
+        outline: none;
+        box-shadow: 0 0 5px #1c8de0;
+    }
+
+    .user_upload_form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* 📷 Channel picture preview */
+    .user_upload_form img {
+        display: block;
+        margin: 10px 0;
+        border-radius: 10px;
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 2px solid #3ea6ff;
+    }
+
+    /* 🗑️ Remove picture checkbox */
+    .user_upload_form input[type="checkbox"] {
+        margin-right: 5px;
+        accent-color: #3ea6ff;
+    }
+
+    /* 💾 Save button */
+    .submit-button {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .user_upload_form button {
+        background-color: #3ea6ff;
+        border: none;
+        border-radius: 25px;
+        color: white;
+        font-size: 16px;
+        padding: 10px 25px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+
+    .user_upload_form button:hover {
+        background-color: #1c8de0;
+        transform: translateY(-2px);
+    }
+
+    /* 📱 Responsive (mobile) */
+    @media (max-width: 600px) {
+        .channel-form-wrapper {
+            padding: 25px;
+        }
+
+        .channel-form-wrapper h3 {
+            font-size: 20px;
+        }
+
+        .user_upload_form img {
+            width: 100px;
+            height: 100px;
+        }
+    }
+</style>
+
+

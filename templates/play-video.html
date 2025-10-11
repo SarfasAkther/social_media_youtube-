@@ -1,0 +1,209 @@
+{% extends "index.html" %}
+{% load humanize static %}
+{% block sidebar %}<hr>{% endblock sidebar %}
+
+{% block content %}
+<div class="container">
+  <div class="play-container">
+    <div class="row">
+      <!-- Video Section -->
+      <div class="play-video">
+        <video controls autoplay width="100%">
+          <source src="{{ video.video_videofile.url }}" type="video/mp4">
+        </video>
+
+        <h3>{{ video.video_title }}</h3>
+
+        <div class="play-video-info">
+          <p>{{ video.video_views|intcomma }} views • {{ video.video_timestamp|timesince }} ago</p>
+
+          <div class="action-buttons">
+            <!-- Like -->
+            <a href="{% url 'like_video' video.video_id %}" 
+               class="action-link {% if user_has_liked %}active{% endif %}">
+              <img src="{% static 'images/like.png' %}" class="icon">
+              {{ video.like_set.count }}
+            </a>
+
+            <!-- Dislike -->
+            <a href="{% url 'dislike_video' video.video_id %}" 
+               class="action-link {% if user_has_disliked %}active{% endif %}">
+              <img src="{% static 'images/dislike.png' %}" class="icon">
+              {{ video.dislike_set.count }}
+            </a>
+
+            <!-- Share -->
+            <a href="#" onclick="copyShareLink(event)">
+              <img src="{% static 'images/share.png' %}" class="icon"> Share
+            </a>
+
+            <!-- Save -->
+            <a href="{% url 'save_watchlater' video.video_id %}" 
+              id="save-btn" 
+              class="action-link {% if is_saved %}saved{% endif %}">
+              <img src="{% static 'images/save.png' %}" class="icon" id="save-icon">
+              <span id="save-text">{% if is_saved %}Saved{% else %}Save{% endif %}</span>
+            </a>
+
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- Publisher Section -->
+        <div class="publisher">
+
+          <img src="{{ publisher_info.channel_picture.url|default:'/static/images/default-channel.png' }}" alt="">
+          <div>
+              <p>{{ publisher_info.channel_name }}</p>
+              <span>{{ publisher_info.subscribers.count|intcomma }} subscribers</span>
+          </div>
+          {% if user.is_authenticated %}
+              {% if user.channel %}
+              <form method="POST" action="{% url 'subscribe' %}">
+                  {% csrf_token %}
+                  <!-- Target channel -->
+                  <input type="hidden" name="channel_id" value="{{ publisher_info.id }}">
+                  <!-- Current video so we can redirect back -->
+                  <input type="hidden" name="video_id" value="{{ video.video_id }}">
+                  <button type="submit" class="subscribe-btn">
+                      {% if is_subscribed %}
+                          Subscribed
+                      {% else %}
+                          Subscribe
+                      {% endif %}
+                  </button>
+              </form>
+              {% else %}
+                  <p><a href="{% url 'create_channel' %}">Create your channel to subscribe</a></p>
+              {% endif %}
+          {% endif %}
+        </div>
+
+
+        <!-- Comments Section -->
+        <div class="vid-description">
+          <h4>{{ comments|length }} Comments</h4>
+
+          <!-- Comment Form -->
+          <form method="POST" action="{% url 'add_comment' video.video_id %}">
+            {% csrf_token %}
+            <div class="add-comment">
+              <img src="{{ user.channel.channel_picture.url|default:'/static/images/default-channel.png' }}">
+              <input type="text" name="comment" placeholder="Write a comment..." required>
+              <button type="submit">Comment</button>
+            </div>
+          </form>
+
+          <!-- Existing Comments -->
+          {% for comment in comments %}
+            <div class="old-comment">
+              <img src="{{ comment.picture }}">
+              <div>
+                <h3>{{ comment.name }} <span>{{ comment.timestamp|timesince }} ago</span></h3>
+                <p>{{ comment.content }}</p>
+                <hr>
+              </div>
+            </div>
+          {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="right-sidebar">
+        {% for v in user_uploads %}
+        <div class="side-video-list">
+          <a href="{% url 'play' v.video_id %}" class="small-thumbnail">
+            <img src="{{ v.video_thumbnail.url }}">
+          </a>
+          <div class="vid-info">
+            <a href="{% url 'play' v.video_id %}">{{ v.video_title }}</a>
+            <p>{{ v.user.username }}</p>
+            <p>{{ v.video_views|intcomma }} views</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSS -->
+<style>
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #444;
+    transition: 0.3s;
+  }
+  .action-link.active img {
+    filter: brightness(0) saturate(100%) invert(33%) sepia(96%) saturate(1810%) hue-rotate(202deg) brightness(94%) contrast(91%);
+  }
+  .action-link:hover { color: #007bff; }
+  .icon { width: 20px; }
+  .subscribe-btn {
+    background: #cc0000;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .subscribe-btn:hover { background: #e60000; }
+</style>
+
+<!-- JS -->
+<script>
+function copyShareLink(event) {
+  event.preventDefault();
+  navigator.clipboard.writeText(window.location.href)
+    .then(() => alert("🔗 Link copied to clipboard!"))
+    .catch(() => alert("Failed to copy link."));
+}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const saveBtn = document.getElementById("save-btn");
+    const saveText = document.getElementById("save-text");
+
+    if (saveBtn) {
+        saveBtn.addEventListener("click", function(event) {
+            event.preventDefault();  // Stop the normal redirect
+
+            fetch(saveBtn.getAttribute("href"), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                // No JSON returned, since your view redirects → we only toggle UI
+                if (saveBtn.classList.contains("saved")) {
+                    // Unsave
+                    saveBtn.classList.remove("saved");
+                    saveText.textContent = "Save";
+                } else {
+                    // Save
+                    saveBtn.classList.add("saved");
+                    saveText.textContent = "Saved";
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    }
+});
+</script>
+
+{% endblock %}

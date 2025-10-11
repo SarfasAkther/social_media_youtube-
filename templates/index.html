@@ -1,0 +1,102 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youtube</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <nav class="flex-div">
+        <div class="nav-left">
+        <img src="{% static 'images/menu.png' %}" class="menu-icon">
+        <img src="{% static 'images/logo.png' %}" class="logo">
+        </div>
+        <div class="nav-middle flex-div">
+            <form method="GET" action="{% url 'search_results' %}" class="search-box flex-div">
+                <input type="text" name="q" placeholder="Search" value="{{ request.GET.q }}">
+                <button type="submit" style="border: none; background: none; cursor: pointer;">
+                    <img src="{% static 'images/search.png' %}" alt="Search">
+                </button>
+            </form>
+        </div>
+
+
+        </div>
+        <div class="nav-right flex-div">
+            <a href="{% url 'upload' %}">
+                <img src="{% static 'images/upload.png' %}" alt="Upload">
+            </a>
+
+            {% if request.user.is_authenticated %}
+                {% if request.user.channel %}
+                    <a href="{% url 'my_channel' %}">
+                        <img src="{{ request.user.channel.channel_picture.url }}" class="user-icon" alt="Your Channel">
+                    </a>
+                {% else %}
+                    <a href="{% url 'create_channel' %}">
+                        <img src="{% static 'images/p.jpg' %}" class="user-icon" alt="Create Channel">
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}">
+                    <img src="{% static 'images/p.jpg' %}" class="user-icon" alt="Login">
+                </a>
+            {% endif %}
+        </div>
+
+    </nav>
+    <!------------sidebar------------------------>
+    <div class="sidebar">
+        <div class="shortcut-links">
+            <a href="{% url 'home' %}"><img src="{% static 'images/home.png' %}" ><p>Home</p></a>    
+            <a href="{% url 'watched_history' %}"><img src="{% static 'images/history.png' %}" ><p>History</p></a>
+            <a href="{% url "saved" %}"><img src="{% static 'images/playlist.png' %}" ><p>Saved</p></a>
+            <a href="{% url 'logout' %}"><img src="{% static 'images/library.png' %}" ><p>Log Out</p></a>
+            <hr>
+        </div>
+        {% block sidebar %}
+        <div class="subscribed-list">
+            <h3>SUBSCRIBED</h3>
+            <br>
+            {% for channel in subscribed_channels %}
+                <a href="{% url 'channel_detail' channel.id %}">            
+                    <img src="{{ channel.channel_picture.url }}" alt="{{ channel.channel_name }}">
+                    <p>{{ channel.channel_name }}</p>
+                </a>
+            {% empty %}
+                <p>You have no subscriptions yet.</p>
+            {% endfor %}
+        </div>
+        {% endblock %}
+
+    </div>
+    {% block content %}
+    <!------------main container------------------------>
+
+
+    <div class="container">
+        <div class="list-container">
+            {% for video in videos %}
+                <div class="vid-list">
+                    <a href="{% url 'play' video.video_id %}"><img src="{{ video.video_thumbnail.url }}" class="thumbnail"></a>
+                    <div class="flex-div">
+                        <img src="{{ video.user.channel.channel_picture.url|default:'https://via.placeholder.com/40' }}" class="channel-icon">
+                        <div class="vid-info">
+                            <a href="#">{{ video.video_title }}</a>
+                            <p>{{ video.user.channel.channel_name }}</p>
+                            <p>{{ video.video_views|intcomma }} Views  &bull; {{ video.video_timestamp|timesince }} ago</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% endblock %}
+    <script src="{% static 'script.js' %}"></script>
+    
+</body>
+</html>

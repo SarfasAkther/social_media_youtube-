@@ -1,0 +1,56 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'channel.css' %}">
+
+<div class="channel-header">
+    <img src="{{ channel.channel_picture.url }}" class="channel-pic" alt="{{ channel.channel_name }}">
+    <div class="channel-info">
+        <h2>{{ channel.channel_name }}</h2>
+        <p class="username">@{{ channel.user.username }}</p>
+        <p class="subscribers">{{ subscriber_count }} subscribers</p>
+
+        {% if request.user.is_authenticated and request.user != channel.user %}
+            {% if is_subscribed %}
+                <button class="btn subscribed">Subscribed</button>
+            {% else %}
+                <button class="btn subscribe">Subscribe</button>
+            {% endif %}
+        {% endif %}
+        {% if request.user == channel.user %}
+            <a href="{% url 'edit_channel' %}" class="btn edit-btn">Edit Channel</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="channel-description">
+    <h3>About</h3>
+    <p>{{ channel.channel_description }}</p>
+</div>
+
+<hr>
+
+<h3 class="section-title">Posts (Videos)</h3>
+
+<div class="video-grid">
+    {% for video in videos %}
+        <div class="video-card">
+            <a href="{% url 'play' video.video_id %}">
+                <img src="{{ video.video_thumbnail.url }}" class="thumbnail" alt="{{ video.video_title }}">
+            </a>
+            <div class="video-details">
+                <h4>{{ video.video_title }}</h4>
+                <p>{{ video.video_views }} views • {{ video.video_timestamp|date:"M d, Y" }}</p>
+            </div>
+            {% if request.user == channel.user %}
+            <form action="{% url 'remove_video' video.video_id %}" method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn edit-btn" onclick="return confirm('Are you sure you want to remove this video?');">
+                    Remove
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No videos yet.</p>
+    {% endfor %}
+</div>
