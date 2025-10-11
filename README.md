@@ -8,11 +8,13 @@ Users can upload videos, create channels, like, subscribe, and more!
 ## 🚀 Features
 - User registration & login system  
 - Channel creation and video uploads  
-- Like / Dislike system  
+- Like / Dislike system 
+- Comment system 
 - Subscription functionality  
 - Watch history & “Watch Later” feature  
-- Pagination on sales and video pages  
+- Search engine for videos and channels  
 - Bootstrap frontend with custom CSS  
+
 
 ---
 
