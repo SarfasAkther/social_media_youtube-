@@ -19,7 +19,7 @@ Users can upload videos, create channels, like, subscribe, and more!
 ## 🛠️ Tech Stack
 - **Backend:** Django (Python)  
 - **Frontend:** HTML, CSS, Bootstrap, JavaScript  
-- **Database:** SQLite  
+- **Database:** postgres  
 - **Media Handling:** Django ImageField  
 - **Version Control:** Git & GitHub  
 
