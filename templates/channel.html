@@ -1,6 +1,14 @@
 {% load static %}
-
-<link rel="stylesheet" href="{% static 'channel.css' %}">
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ channel.channel_name }} - Channel{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'channel.css' %}">
+</head>
+<body>
 
 <div class="channel-header">
     <img src="{{ channel.channel_picture.url }}" class="channel-pic" alt="{{ channel.channel_name }}">
