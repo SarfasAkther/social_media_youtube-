@@ -30,4 +30,4 @@ Users can upload videos, create channels, like, subscribe, and more!
 ## 🖼️ Screenshots
 
 ### Homepage
-![Homepage Screenshot](static/images/screenshot (3).png)
+![Homepage Screenshot](static/images/homepage.png)
