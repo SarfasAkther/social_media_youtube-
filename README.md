@@ -26,3 +26,8 @@ Users can upload videos, create channels, like, subscribe, and more!
 - **Version Control:** Git & GitHub  
 
 ---
+
+## 🖼️ Screenshots
+
+### Homepage
+![Homepage Screenshot](static/images/screenshot (3).png)
