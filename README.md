@@ -1,6 +1,6 @@
 # 🎬 Social Media YouTube Clone (Django Project)
 
-A mini YouTube-like web app built with Django.  
+A mini YouTube-like web app built with Django REST API  
 Users can upload videos, create channels, like, subscribe, and more!
 
 ---
@@ -19,7 +19,7 @@ Users can upload videos, create channels, like, subscribe, and more!
 ---
 
 ## 🛠️ Tech Stack
-- **Backend:** Django (Python)  
+- **Backend:** DRF (Python)  
 - **Frontend:** HTML, CSS, Bootstrap, JavaScript  
 - **Database:** postgres  
 - **Media Handling:** Django ImageField  
