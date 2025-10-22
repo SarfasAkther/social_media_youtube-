@@ -28,7 +28,9 @@
             <a href="{% url 'edit_channel' %}" class="btn edit-btn">Edit Channel</a>
         {% endif %}
     </div>
+        
 </div>
+
 
 <div class="channel-description">
     <h3>About</h3>
@@ -38,7 +40,6 @@
 <hr>
 
 <h3 class="section-title">Posts (Videos)</h3>
-
 <div class="video-grid">
     {% for video in videos %}
         <div class="video-card">

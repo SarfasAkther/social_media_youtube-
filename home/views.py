@@ -7,6 +7,9 @@ from home.decorators import channel_required
 from .forms import UserFilesForm, ChannelForm
 from .models import Channel, Comments, UserUploads, Like, Dislike, WatchLater, Subscription,UserVideosHistory
 from django.db.models import Q
+from rest_framework import generics
+from .models import Like
+from .serializers import LikeSerializer,DislikeSerializer  
 
 @login_required(login_url='login')
 @channel_required
@@ -27,17 +30,13 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
-
-
-
 @login_required(login_url='login')
 def play(request, video_id):
     video = get_object_or_404(UserUploads, video_id=video_id)
     
-    # ✅ Increment view count + update watch history
+    # Increment view count + update watch history
     video.increment_views(request)
 
-    # ✅ Comments with user/channel info
     comments = Comments.objects.filter(video=video).order_by('-timestamp')
     comment_data = []
     for c in comments:
@@ -49,7 +48,7 @@ def play(request, video_id):
             "picture": channel.channel_picture.url if channel and channel.channel_picture else '/static/images/default-channel.png'
         })
 
-    # ✅ Subscription check
+    # Subscription check
     is_subscribed = False
     if hasattr(request.user, 'channel'):
         publisher_channel = getattr(video.user, 'channel', None)
@@ -69,10 +68,6 @@ def play(request, video_id):
         'is_subscribed': is_subscribed,
     }
     return render(request, 'play-video.html', context)
-
-
-
-
 
 def signup_view(request):
     if request.method == "POST":
@@ -120,11 +115,7 @@ def logout_view(request):
 @login_required(login_url='login')
 @channel_required
 def user_upload(request):
-    # Check if user has a channel
-    if not hasattr(request.user, 'channel'):
-        messages.error(request, "You need to create a channel first.")
-        return redirect('create_channel')
-    elif request.method == "POST":
+    if request.method == "POST":
         form = UserFilesForm(request.POST, request.FILES)
         if form.is_valid():
             upload = form.save(commit=False)
@@ -141,11 +132,6 @@ def user_upload(request):
 
 @login_required(login_url='login')
 def create_channel(request):
-    # Check if user already has a channel
-    if Channel.objects.filter(user=request.user).exists():
-        messages.warning(request, "You already have a channel.")
-        return redirect('home')
-
     if request.method == "POST":
         form = ChannelForm(request.POST, request.FILES)
         if form.is_valid():
@@ -176,6 +162,13 @@ def like_video(request, video_id):
     return redirect('play', video_id=video.video_id)
 
 
+
+class LikeListCreateView(generics.ListCreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+
+
+
 @login_required(login_url='login')
 def dislike_video(request, video_id):
     video = get_object_or_404(UserUploads, video_id=video_id)
@@ -188,6 +181,10 @@ def dislike_video(request, video_id):
         Dislike.objects.create(user=request.user, video=video)
 
     return redirect('play', video_id=video.video_id)
+
+class DislikeListCreateView(generics.ListCreateAPIView):
+    queryset = Dislike.objects.all()
+    serializer_class = DislikeSerializer
 
 @login_required
 def save_watchlater(request, video_id):
@@ -209,50 +206,37 @@ def add_comment(request, video_id):
 @login_required(login_url='login')
 def subscribe(request):
     if request.method == 'POST':
-        # ✅ Get target channel (the one being subscribed to)
+
         channel_id = request.POST.get('channel_id')
-        if not channel_id:
-            messages.error(request, "Channel not found.")
-            return redirect('home')
 
         channel_to_subscribe = get_object_or_404(Channel, id=channel_id)
 
-        try:
-            # ✅ Get the subscriber's own channel
-            subscriber_channel = request.user.channel
-        except Channel.DoesNotExist:
-            messages.error(request, "You must have a channel to subscribe to others.")
-            return redirect('create_channel')
+        subscriber_channel = request.user.channel
 
-        # ✅ Prevent subscribing to your own channel
         if subscriber_channel == channel_to_subscribe:
             messages.error(request, "You cannot subscribe to your own channel.")
             return redirect('play', video_id=request.POST.get('video_id'))
 
-        # ✅ --- TOGGLE LOGIC STARTS HERE ---
+
         existing_sub = Subscription.objects.filter(
             subscriber=subscriber_channel,
             channel=channel_to_subscribe
         )
 
         if existing_sub.exists():
-            # 🔹 Already subscribed → unsubscribe (delete)
+            # Already subscribed → unsubscribe (delete)
             existing_sub.delete()
             messages.info(request, f"You unsubscribed from {channel_to_subscribe.channel_name}.")
         else:
-            # 🔹 Not subscribed yet → subscribe (create)
+            # Not subscribed yet → subscribe (create)
             Subscription.objects.create(
                 subscriber=subscriber_channel,
                 channel=channel_to_subscribe
             )
             messages.success(request, f"You subscribed to {channel_to_subscribe.channel_name}!")
-        # ✅ --- TOGGLE LOGIC ENDS HERE ---
-
-        # ✅ Redirect back to the same video page
         video_id = request.POST.get('video_id')
         return redirect('play', video_id=video_id)
-
-    # Fallback
+    
     return redirect('home')
 
 @login_required(login_url='login')
@@ -290,17 +274,11 @@ def channel_view(request, channel_id):
 
 @login_required(login_url='login')
 def my_channel(request):
-    """Redirect the logged-in user to their own channel page."""
-    try:
         channel = Channel.objects.get(user=request.user)
         return redirect('channel_detail', channel_id=channel.id)
-    except Channel.DoesNotExist:
-        messages.warning(request, "You don’t have a channel yet. Create one to continue.")
-        return redirect('create_channel')
     
 @login_required(login_url='login')
 def watched_history(request):
-    """Show recently watched videos (most recent first)"""
     history_entries = (
         UserVideosHistory.objects
         .filter(user=request.user)
@@ -319,10 +297,6 @@ def edit_channel(request):
     if request.method == 'POST':
         form = ChannelForm(request.POST, request.FILES, instance=channel)
         if form.is_valid():
-            # if user removes channel picture (optional)
-            if 'remove_picture' in request.POST:
-                channel.channel_picture.delete(save=False)
-                channel.channel_picture = None
             form.save()
             return redirect('my_channel')  # redirect to your channel page
     else:
@@ -334,12 +308,6 @@ def edit_channel(request):
 @login_required
 def remove_video(request, video_id):
     video = get_object_or_404(UserUploads, video_id=video_id)
-
-    # Only allow the owner of the video to delete it
-    if video.user != request.user:
-        messages.error(request, "You cannot delete someone else's video.")
-        return redirect('channel_detail', channel_id=request.user.channel.id)
-
     # Delete related objects
     Like.objects.filter(video=video).delete()
     Dislike.objects.filter(video=video).delete()
@@ -358,7 +326,7 @@ def search_results(request):
     results = []
 
     if query:
-        # ✅ Search by video title OR by channel name
+        # Search by video title OR by channel name
         results = UserUploads.objects.filter(
             Q(video_title__icontains=query) | Q(user__channel__channel_name__icontains=query)
         ).order_by('-video_timestamp')

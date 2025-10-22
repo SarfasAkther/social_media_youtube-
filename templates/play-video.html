@@ -54,7 +54,7 @@
         <!-- Publisher Section -->
         <div class="publisher">
 
-          <img src="{{ publisher_info.channel_picture.url|default:'/static/images/default-channel.png' }}" alt="">
+          <img src="{{ publisher_info.channel_picture.url|default:'/static/images/default-channel.png' }}" height="50" alt="">
           <div>
               <p>{{ publisher_info.channel_name }}</p>
               <span>{{ publisher_info.subscribers.count|intcomma }} subscribers</span>
