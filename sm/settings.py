@@ -25,8 +25,10 @@ SECRET_KEY = 'django-insecure-_v&xie1)v+-59ykod#oa#dem&^dd2u+=5c14s&(b-u)_pvx#+0
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
+
 
 
 # Application definition
@@ -76,16 +78,15 @@ WSGI_APPLICATION = 'sm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sm_db',          # your database name
-        'USER': 'postgres',       # PostgreSQL user
-        'PASSWORD': 'sarfas',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default='postgresql://postgres:sarfas@localhost:5432/sm_db',
+        conn_max_age=600
+    )
 }
+
 
 
 
@@ -133,3 +134,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+if not DEBUG:
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
