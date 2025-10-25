@@ -47,3 +47,6 @@ Users can upload videos, create channels, like, subscribe, and more!
 ### register
 ![login Screenshot](static/images/login.png)
 
+## 🌍 Live Demo
+[Click here to visit the live website](https://social-media-youtube.onrender.com)
+
