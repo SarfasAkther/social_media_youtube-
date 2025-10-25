@@ -135,7 +135,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-if not DEBUG:
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
+if os.environ.get('RENDER'):
+    DEBUG = False
+    ALLOWED_HOSTS = ['.onrender.com']
+    
+    # Tell Django where to collect static files
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+    # Database from Render
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
