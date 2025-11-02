@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Vid Tube{% endblock %}</title>
+    <title>{% block title %}sak Tube{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
@@ -82,14 +82,14 @@
             {% for video in videos %}
                 <div class="vid-list">
                     <a href="{% url 'play' video.video_id %}"><img src="{{ video.video_thumbnail.url }}" class="thumbnail"></a>
-                    <div class="flex-div">
-                        <img src="{{ video.user.channel.channel_picture.url|default:'https://via.placeholder.com/40' }}" class="channel-icon">
-                        <div class="vid-info">
-                            <a href="#">{{ video.video_title }}</a>
-                            <p>{{ video.user.channel.channel_name }}</p>
-                            <p>{{ video.video_views|intcomma }} Views  &bull; {{ video.video_timestamp|timesince }} ago</p>
+                        <div class="flex-div">
+                            <img src="{{ video.user.channel.channel_picture.url|default:'https://via.placeholder.com/40' }}" class="channel-icon">
+                            <div class="vid-info">
+                                <a href="#">{{ video.video_title }}</a>
+                                <p>{{ video.user.channel.channel_name }}</p>
+                                <p>{{ video.video_views|intcomma }} Views  &bull; {{ video.video_timestamp|timesince }} ago</p>
+                            </div>
                         </div>
-                    </div>
                 </div>
             {% endfor %}
         </div>

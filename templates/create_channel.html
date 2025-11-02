@@ -108,20 +108,20 @@
 <div class="channel-container">
     <div class="channel-form-wrapper">
         <h3>Create Your Channel</h3>
-        <form action="{% url 'create_channel' %}" method="POST" enctype="multipart/form-data" class="user_upload_form">
+        <form action="" method="POST" enctype="multipart/form-data" class="user_upload_form">
             {% csrf_token %}
             <div>
-                <label for="id_channel_name">Channel Name</label>
+                <label for="id_channel_name" required>Channel Name</label>
                 {{ form.channel_name }}
             </div>
 
             <div>
-                <label for="id_channel_description">Description</label>
+                <label for="id_channel_description" required>Description</label>
                 {{ form.channel_description }}
             </div>
 
             <div>
-                <label for="id_channel_picture">Channel Picture</label>
+                <label for="id_channel_picture" required>Channel Picture</label>
                 {{ form.channel_picture }}
             </div>
 

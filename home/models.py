@@ -63,7 +63,7 @@ class UserVideosHistory(models.Model):
 
     class Meta:
         unique_together = ('user', 'video')
-        ordering = ['-timestamp']  # newest first
+        ordering = ['-timestamp']
 
     def __str__(self):
         return f"{self.user.username} watched {self.video.video_title}"
@@ -92,26 +92,18 @@ class WatchLater(models.Model):
 
 class Channel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    channel_name = models.CharField(max_length=100)
-    channel_description = models.TextField(default="No channel description yet.")
+    channel_name = models.CharField(max_length=100 ,blank=False ,null=False)
+    channel_description = models.TextField(default="No channel description yet.", blank=False ,null=False)
     channel_created_at = models.DateTimeField(auto_now_add=True)
-    channel_picture = models.ImageField(upload_to='channel_pictures/')
+    channel_picture = models.ImageField(upload_to='channel_pictures/', blank=False ,null=False)
 
     def __str__(self):
         return self.channel_name
 
 
 class Subscription(models.Model):
-    subscriber = models.ForeignKey(
-        'Channel',
-        related_name='subscriptions',
-        on_delete=models.CASCADE
-    )
-    channel = models.ForeignKey(
-        'Channel',
-        related_name='subscribers',
-        on_delete=models.CASCADE
-    )
+    subscriber = models.ForeignKey('Channel',related_name='subscriptions',on_delete=models.CASCADE)
+    channel = models.ForeignKey('Channel',related_name='subscribers',on_delete=models.CASCADE)
     subscribed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

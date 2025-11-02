@@ -5,10 +5,11 @@ urlpatterns = [
     path('', views.index, name='home'),
     path('play/<int:video_id>/', views.play, name='play'),
     path('register/', views.signup_view, name='signup'),
+    path('api/register/', views.api_signup, name='api_signup'),
     path('login-page/', views.login_view, name='login'),
+    path('api/login/', views.api_login, name='api_login'),
     path('logout/', views.logout_view, name='logout'),
-
-    # Uploads
+    path('api/logout/', views.api_logout, name='api_logout'),
     path('upload/', views.user_upload, name="upload"),
     path('create-channel/', views.create_channel, name="create_channel"),
     path('like/<int:video_id>/', views.like_video, name='like_video'),

@@ -1,24 +1,29 @@
 {% extends "index.html" %}
-{% block title %}Search Results - Youtube{% endblock title %}
+{% load humanize %}
+{% block title %}Search Results - saktube{% endblock title %}
 {% block sidebar %}<hr>{% endblock sidebar %}
 
 {% block content %}
-<h2>Search results for "{{ query }}"</h2>
-
-{% if results %}
-<div class="video-list">
-    {% for video in results %}
-    <div class="video-card">
-        <a href="{% url 'play' video.video_id %}">
-            <img src="{{ video.video_thumbnail.url }}" alt="{{ video.video_title }}">
-            <h3>{{ video.video_title }}</h3>
-            <p>Channel: {{ video.user.channel.channel_name }}</p>
-            <p>{{ video.video_category }} | Views: {{ video.video_views }}</p>
-        </a>
+{% load static%}
+    <div class="container">
+        <div class="list-container">
+            {% if results %}    
+                {% for video in results %}
+                    <div class="vid-list">
+                        <a href="{% url 'play' video.video_id %}"><img src="{{ video.video_thumbnail.url }}" class="thumbnail"></a>                       
+                            <div class="flex-div">
+                                <img src="{{ video.user.channel.channel_picture.url|default:'https://via.placeholder.com/40' }}" class="channel-icon">
+                                <div class="vid-info">
+                                    <a href="#">{{ video.video_title }}</a>
+                                    <p>{{ video.user.channel.channel_name }}</p>
+                                    <p>{{ video.video_views|intcomma }} Views  &bull; {{ video.video_timestamp|timesince }} ago</p>                
+                                </div>
+                            </div>                        
+                    </div>
+                {% endfor %}
+        </div>
     </div>
-    {% endfor %}
-</div>
-{% else %}
-<p>No videos found.</p>
-{% endif %}
+            {% else %}
+            <p>No videos found.</p>
+            {% endif %}
 {% endblock %}
